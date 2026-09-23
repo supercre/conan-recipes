@@ -1,0 +1,2 @@
+# Conan recipe revision 은 파일 바이트 해시이므로 줄바꿈 변환을 막는다
+* -text
