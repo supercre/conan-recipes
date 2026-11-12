@@ -1,0 +1,6 @@
+versions:
+  "2.02.30":
+    folder: all
+
+# 별도 SDK 입력을 준비한 뒤 README의 절차로 export한다.
+manual_export: true

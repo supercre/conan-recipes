@@ -2,8 +2,10 @@
 
 [extralib](https://conan.supercreative.kr:27443/artifactory/api/conan/extralib) Conan 리모트에 올라가는 레시피를 관리하는 저장소.
 
-현재는 `@sc/dev` 채널 중 **프리빌트 바이너리 페이로드를 레시피에 포함하지 않는** 레시피만 관리한다.
-각 레시피는 extralib 에 올라가 있는 최신 revision 과 동일한 내용이다 (재-export 시 revision 해시 일치 확인됨).
+기본 관리 대상은 `@sc/dev` 채널 중 **프리빌트 바이너리 페이로드를 레시피에 포함하지 않는** 레시피다.
+추가로 [FMOD `2.02.30@sc/prebuilt`](recipes/fmod/README.md)의 레시피 코드만 관리하며,
+FMOD SDK와 패키지 아카이브는 비공개 `supercre/conan-private-package`에 보관한다.
+가져온 레시피 파일은 원본 바이트를 유지한다. FMOD의 원래 revision을 재현하려면 별도 SDK 입력도 필요하다.
 
 ## 구조
 
@@ -37,11 +39,12 @@ python3 scripts/export.py zlib --upload    # export 후 extralib 로 레시피 �
 - **angle, v8**: `build_policy = "never"` 인 export-pkg 전용 레시피이다. `set_version()` 에서 `build.yaml` 을 읽는데, 이 파일은 export 대상이 아니다. `scripts/export.py` 가 버전별로 임시 `build.yaml` 을 만들어 export 한다. 바이너리는 별도 빌드 환경에서 `conan export-pkg` 로 올린다.
 - **외부 tool_requires**: libtool, msys2, nasm, gas-preprocessor 는 conancenter 에서 받는다. meson, pkgconf, strawberryperl 은 extralib 에 user/channel 없이 올라가 있다.
 - **curl 선택 의존성**: c-ares, libidn2, libntlm, libpsl (`@sc/dev`) 은 아직 없다. 기본 옵션에서는 사용하지 않는다.
+- **FMOD**: `config.yml`의 `manual_export: true`로 일괄 export에서 제외한다. 별도 SDK를 준비한 뒤 [FMOD 안내](recipes/fmod/README.md)를 따른다.
 
 ## 관리 대상에서 제외된 것
 
 - `tensorflowlite/2.17@sc/dev`: 레시피에 프리빌트 바이너리(약 1GB)가 포함된 레거시 구조
-- `@sc/stable`, `@sc/live-*`, `@sc/prebuilt`, `@sc/release` 등 레거시 채널
+- `@sc/stable`, `@sc/live-*`, `@sc/prebuilt`, `@sc/release` 등 레거시 채널 (위 FMOD 레시피는 예외)
 - user/channel 없는 레퍼런스 (`zlib/1.3.1` 등)
 
 ## 레시피 목록
@@ -53,6 +56,7 @@ python3 scripts/export.py zlib --upload    # export 후 extralib 로 레시피 �
 | brotli | 1.1.0 |
 | curl | 8.15.0 |
 | fdk_aac | 2.0.3 |
+| [fmod](recipes/fmod/README.md) | 2.02.30 (`@sc/prebuilt`, 별도 SDK 필요) |
 | freetype2 | 2.13.3 |
 | glew | 2.2.0 |
 | glfw3 | 3.4 |

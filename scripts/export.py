@@ -20,7 +20,7 @@ RECIPES = os.path.join(ROOT, "recipes")
 def parse_config(path):
     """conan-center-index 형식 config.yml 파싱 (PyYAML 의존성 없이)"""
     entries, version = [], None
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         for line in f:
             m = re.match(r'^  "?([^":]+)"?:\s*$', line)
             if m:
@@ -41,6 +41,12 @@ def iter_targets(filters):
             if filters and name not in filters and f"{name}/{version}" not in filters:
                 continue
             yield name, version, os.path.join(RECIPES, name, folder)
+
+
+def requires_manual_export(name):
+    """별도 SDK 준비가 필요한 레시피의 명시적 설정을 확인한다."""
+    with open(os.path.join(RECIPES, name, "config.yml"), encoding="utf-8") as config:
+        return any(re.match(r"^manual_export:\s*true\s*(?:#.*)?$", line) for line in config)
 
 
 def export(name, version, folder, user, channel):
@@ -73,9 +79,18 @@ def main():
     parser.add_argument("--remote", default="extralib")
     args = parser.parse_args()
 
+    targets = list(iter_targets(set(args.targets)))
+    manual = {name for name, _, _ in targets if requires_manual_export(name)}
+    if args.targets and manual:
+        names = ", ".join(sorted(manual))
+        parser.error(f"{names}: 별도 SDK 준비 후 직접 export해야 합니다. recipes/<name>/README.md를 확인하세요.")
+
     failed = []
     refs = []
-    for name, version, folder in iter_targets(set(args.targets)):
+    for name, version, folder in targets:
+        if name in manual:
+            print(f"건너뜀: {name}/{version} (별도 SDK 준비: recipes/{name}/README.md)", flush=True)
+            continue
         ref = f"{name}/{version}@{args.user}/{args.channel}"
         print(f"=== {ref} ({os.path.relpath(folder, ROOT)})", flush=True)
         if export(name, version, folder, args.user, args.channel):
