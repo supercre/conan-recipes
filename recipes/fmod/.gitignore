@@ -1,0 +1,11 @@
+# 사내 SDK 입력과 생성한 패키지는 공개 Git에 포함하지 않는다.
+/all/android/
+/all/ios/
+/all/windows/
+/all/build/
+/all/dist/
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.tgz
