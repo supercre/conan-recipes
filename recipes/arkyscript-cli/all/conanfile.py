@@ -15,7 +15,7 @@ class ArkyscriptCliConan(ConanFile):
     package_type = "application"
     description = "Arky compiler and pinned LuaJIT, Task and I/O runtime"
     url = "https://github.com/supercre/conan-recipes"
-    homepage = "https://github.com/corbie79/arkyscript"
+    homepage = "https://github.com/supercre/arkyscript"
     # 도구와 동적 모듈을 함께 배포하므로 소비자 C++ ABI/Debug 설정과 분리한다.
     settings = "os", "arch"
 

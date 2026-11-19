@@ -9,7 +9,7 @@ class ArkyscriptConan(ConanFile):
     package_type = "header-library"
     description = "Arky C++20 host bindings for an existing LuaJIT VM"
     url = "https://github.com/supercre/conan-recipes"
-    homepage = "https://github.com/corbie79/arkyscript"
+    homepage = "https://github.com/supercre/arkyscript"
     topics = ("lua", "luajit", "bindings", "arky")
     no_copy_source = True
 

@@ -1,6 +1,6 @@
 # Arky Conan 패키지
 
-SDK `0.2.0`의 소스는 `corbie79/arkyscript`의 `0f41ae7934afadecf98b05d9caca4db5fcdb8fe8`로 고정한다.
+SDK `0.2.0`의 소스는 `supercre/arkyscript`의 `0f41ae7934afadecf98b05d9caca4db5fcdb8fe8`로 고정한다.
 기존 SDK와 CLI `0.1.0`은 `c5ce355048d3baa17f3fe38b138d9142bf8f3aed`를 유지한다.
 각 레시피의 `conandata.yml`에서 아카이브 SHA-256도 확인하며, 로컬 체크아웃의 변경은 빌드에 포함하지 않는다.
 
