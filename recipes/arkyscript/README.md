@@ -1,27 +1,33 @@
 # Arky Conan 패키지
 
-소스는 `corbie79/arkyscript`의 `c5ce355048d3baa17f3fe38b138d9142bf8f3aed`로 고정하며,
-두 레시피의 `conandata.yml`에서 아카이브 SHA-256도 확인한다. 로컬 체크아웃의 변경은 빌드에 포함하지 않는다.
+SDK `0.2.0`의 소스는 `corbie79/arkyscript`의 `0f41ae7934afadecf98b05d9caca4db5fcdb8fe8`로 고정한다.
+기존 SDK와 CLI `0.1.0`은 `c5ce355048d3baa17f3fe38b138d9142bf8f3aed`를 유지한다.
+각 레시피의 `conandata.yml`에서 아카이브 SHA-256도 확인하며, 로컬 체크아웃의 변경은 빌드에 포함하지 않는다.
 
 | 패키지 | 내용 | 플랫폼 |
 | --- | --- | --- |
-| `arkyscript/0.1.0@sc/dev` | C++20 `binder/*.h`, `*.inl` | 플랫폼 공통 헤더 |
+| `arkyscript/0.2.0@sc/dev` | C++20 `binder/*.h`, `*.inl` | 플랫폼 공통 헤더 |
 | `arkyscript-cli/0.1.0@sc/dev` | Rust `arky`, 고정 LuaJIT, Task/I/O 모듈, 예제 | 네이티브 macOS/Linux 빌드 |
+
+SDK `0.2.0`의 공개 네임스페이스는 `arky::`다. `arky::state`, `arky::binder`,
+`arky::converter<T>`를 사용하며 기존 코드와 변환기 특수화도 함께 옮긴다.
+이전 네임스페이스를 사용하는 소비자는 SDK `0.1.0`을 계속 설치할 수 있다.
+CLI 버전과 Lua 스크립트 형식은 별도로 관리한다.
 
 클라이언트에는 `arkyscript`를 `requires`로 추가하고 기존 엔진의 LuaJIT를 연결한다.
 모바일 앱에 호스트용 컴파일러·별도 LuaJIT가 유입되지 않도록 CLI는 별도 `tool_requires`로 설치한다.
 바인더는 LuaJIT 의존성을 직접 추가하지 않으므로 소비자가 LuaJIT 헤더·링크 설정을 제공해야 한다.
 
 ```cmake
-find_package(arkyscript 0.1.0 CONFIG REQUIRED)
+find_package(arkyscript 0.2.0 CONFIG REQUIRED)
 target_link_libraries(game PRIVATE arkyscript::binder)
 # game의 기존 LuaJIT 타깃도 연결한다. binder 타깃은 C++20을 요구한다.
 ```
 
 ```sh
-conan create recipes/arkyscript/all --version=0.1.0 --user=sc --channel=dev
+conan create recipes/arkyscript/all --version=0.2.0 --user=sc --channel=dev
 conan create recipes/arkyscript-cli/all --version=0.1.0 --user=sc --channel=dev --build-require
-conan sc:upload arkyscript/0.1.0@sc/dev
+conan sc:upload arkyscript/0.2.0@sc/dev
 conan sc:upload arkyscript-cli/0.1.0@sc/dev
 
 conan sc:install --tool-requires=arkyscript-cli/0.1.0@sc/dev -of build/arky-tools

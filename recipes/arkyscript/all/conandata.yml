@@ -2,3 +2,6 @@ sources:
   "0.1.0":
     url: "https://codeload.github.com/corbie79/arkyscript/tar.gz/c5ce355048d3baa17f3fe38b138d9142bf8f3aed"
     sha256: "979c6fe583d2d9ec8135b94cd7c4fc8ad8b61c062553184c7051ab4ca8e91a60"
+  "0.2.0":
+    url: "https://codeload.github.com/corbie79/arkyscript/tar.gz/0f41ae7934afadecf98b05d9caca4db5fcdb8fe8"
+    sha256: "8cf8e0682292b0b5683888becd9b33ed752c05c1435f88317689573a445e4a27"
