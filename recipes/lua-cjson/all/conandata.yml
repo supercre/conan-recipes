@@ -1,0 +1,7 @@
+sources:
+  "2.1.0-sc.1":
+    url: "https://codeload.github.com/supercre/lua-cjson/tar.gz/b51521934424bd9a74ea3dd7a8f5a89b3b1fc7e9"
+    sha256: "571992e0119c804ff4b8e76d6408a8f50836d018689a1540e1db35cf63325291"
+luajit_headers:
+  url: "https://codeload.github.com/LuaJIT/LuaJIT/tar.gz/96f7b297326e9fd454b7186c6858b2773f94a0dc"
+  sha256: "ce9d03b33e4c28492e8dacacf69c6975a0502cf9225957a6b42dc28f92cbbd34"
