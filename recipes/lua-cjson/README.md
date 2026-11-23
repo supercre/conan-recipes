@@ -1,7 +1,8 @@
 # Lua CJSON: LuaJIT 64비트 정수 지원
 
-`lua-cjson/2.1.0-sc.1@sc/dev`는 `supercre/lua-cjson`의
-`b51521934424bd9a74ea3dd7a8f5a89b3b1fc7e9`를 고정한 정적 라이브러리다.
+`lua-cjson/2.1.0-sc.2@sc/dev`는 `supercre/lua-cjson`의
+`9a1a337a11b51c23f666cd44043fce23a34b35f7`를 고정한 정적 라이브러리다.
+이전 버전 `2.1.0-sc.1`(`b51521934424bd9a74ea3dd7a8f5a89b3b1fc7e9`)도 그대로 설치할 수 있다.
 Conan 버전은 SC 포크 버전이고 upstream의 `cjson._VERSION`은 `2.1devel`로 유지한다.
 
 LuaJIT의 공개 Lua 5.1 ABI 헤더만 빌드에 사용한다. 런타임과 Lua 헤더를 패키지에
@@ -11,7 +12,7 @@ Lua 5.2 이상과는 ABI가 다르며, 64비트 cdata 기능에는 LuaJIT FFI가
 ## 설치 및 연결
 
 ```sh
-conan sc:install --requires=lua-cjson/2.1.0-sc.1@sc/dev --build=missing \
+conan sc:install --requires=lua-cjson/2.1.0-sc.2@sc/dev --build=missing \
   -g CMakeDeps -g CMakeToolchain -of build/conan
 ```
 
@@ -43,12 +44,24 @@ assert(json.encode(18446744073709551615ULL) == "18446744073709551615")
 기본 디코딩 모드는 `off`이고 `auto`는 안전 정수 범위를 넘는 값만 cdata로 반환한다.
 범위를 넘는 10진 정수는 활성화된 모드에서 오류다. 소수점/지수 표기는 Lua number로 유지한다.
 
+## 기존 엔진 호환 설정
+
+`2.1.0-sc.2`부터 설정 두 개가 있다. 기본값은 둘 다 `false`이고 `cjson.new()`로 만든 인스턴스마다 따로 정한다.
+엔진에 내장해 쓰던 cocos2d-x 계열 cjson과 같은 동작이 필요하면 모듈을 연 뒤 둘 다 켠다.
+
+```lua
+json.decode_lua_nil(true)          -- JSON null을 cjson.null 대신 Lua nil로 읽는다
+json.decode_invalid_escapes(true)  -- "\q"처럼 규격에 없는 이스케이프를 오류 없이 뒤의 문자로 읽는다
+assert(json.decode('{"a":null}').a == nil)
+assert(json.decode([["a\qb"]]) == "aqb")
+```
+
 ## 빌드 및 검증
 
 ```sh
-conan create recipes/lua-cjson/all --version=2.1.0-sc.1 --user=sc --channel=dev \
+conan create recipes/lua-cjson/all --version=2.1.0-sc.2 --user=sc --channel=dev \
   -s compiler.version=21.0
-conan sc:upload lua-cjson/2.1.0-sc.1@sc/dev
+conan sc:upload lua-cjson/2.1.0-sc.2@sc/dev
 ```
 
 현재 게시한 바이너리는 macOS arm64, Apple Clang 21.0의 Release/Debug이다.
@@ -56,11 +69,12 @@ macOS 최소 배포 버전의 기본값은 13.0이고, `os.version`을 지정하
 현재 툴체인과 다른 기본 프로파일은 그대로 유지하고 설치 시 해당 설정을 명시한다.
 
 ```sh
-conan sc:install --requires=lua-cjson/2.1.0-sc.1@sc/dev \
+conan sc:install --requires=lua-cjson/2.1.0-sc.2@sc/dev \
   -s compiler.version=21.0 --build=never
 ```
 
 다른 플랫폼/툴체인은 `--build=missing`으로 소스에서 빌드한다. 해당 플랫폼의 실행 검증은 별도다.
 정적 라이브러리 자체는 고정된 LuaJIT 소스에서 헤더를 받아 빌드하며 시스템 LuaJIT가 필요 없다.
 `test_package`를 실행할 때는 시스템 LuaJIT와 pkg-config가 필요하다.
-패키지의 라이브러리를 실제 소비자 실행 파일에 연결하여 10,414개 검증을 JIT on/off로 실행한다.
+패키지의 라이브러리를 실제 소비자 실행 파일에 연결하여 int64 검증 10,414개와
+호환 설정 검증 47개를 JIT on/off로 실행한다.

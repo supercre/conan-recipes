@@ -58,6 +58,9 @@ class LuaCjsonConan(ConanFile):
              os.path.join(self.package_folder, "licenses", "LuaJIT"))
         copy(self, "test-int64.lua", os.path.join(source, "tests"),
              os.path.join(self.package_folder, "res", "tests"))
+        # 2.1.0-sc.2부터 있는 파일이다. 없는 버전에서는 아무것도 복사하지 않는다.
+        copy(self, "test-compat.lua", os.path.join(source, "tests"),
+             os.path.join(self.package_folder, "res", "tests"))
         copy(self, "*.adoc", source, os.path.join(self.package_folder, "res", "docs"))
         save(self, os.path.join(self.package_folder, "res", "source.json"),
              json.dumps({"cjson": self.conan_data["sources"][str(self.version)],

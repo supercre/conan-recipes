@@ -29,8 +29,12 @@ class LuaCjsonTest(ConanFile):
     def test(self):
         if can_run(self):
             runner = os.path.join(self.cpp.build.bindir, "test_package")
-            script = os.path.join(self.dependencies["lua-cjson"].package_folder,
-                                  "res", "tests", "test-int64.lua")
-            command = f"{shlex.quote(runner)} {shlex.quote(script)}"
-            self.run(command, env="conanrun")
-            self.run(command + " --joff", env="conanrun")
+            tests = os.path.join(self.dependencies["lua-cjson"].package_folder, "res", "tests")
+            # test-compat.lua는 2.1.0-sc.2부터 패키지에 들어 있다.
+            for name in ("test-int64.lua", "test-compat.lua"):
+                script = os.path.join(tests, name)
+                if not os.path.exists(script):
+                    continue
+                command = f"{shlex.quote(runner)} {shlex.quote(script)}"
+                self.run(command, env="conanrun")
+                self.run(command + " --joff", env="conanrun")
