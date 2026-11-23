@@ -83,7 +83,7 @@ conan sc:upload zlib/1.3.1@sc/dev          # 캐시의 레시피와 빌드된 �
 | jpeg | 2.1.3 |
 | ktx | 4.4.2 |
 | libuv | 1.51.0 |
-| [lua-cjson](recipes/lua-cjson/README.md) | 2.1.0-sc.2 (LuaJIT int64/uint64, 정적 라이브러리) |
+| [lua-cjson](recipes/lua-cjson/README.md) | 2.1.0-sc.3 (LuaJIT int64/uint64, 정적 라이브러리) |
 | nghttp2 | 1.66.0 |
 | nghttp3 | 1.11.0 |
 | ngtcp2 | 1.14.0 |

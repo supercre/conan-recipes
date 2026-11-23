@@ -1,4 +1,7 @@
 sources:
+  "2.1.0-sc.3":
+    url: "https://codeload.github.com/supercre/lua-cjson/tar.gz/225cf5693ad6eb854c211466839d5a2db5a9f39d"
+    sha256: "cfef35bd57cb11ef0099c6834a9772f51c33e208422e76b806081b828ce15091"
   "2.1.0-sc.2":
     url: "https://codeload.github.com/supercre/lua-cjson/tar.gz/9a1a337a11b51c23f666cd44043fce23a34b35f7"
     sha256: "2b908be7db5967cae66b1d7653c25bba8979f02821c15063b6c0d57b354e65d6"

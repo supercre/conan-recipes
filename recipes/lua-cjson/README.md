@@ -1,8 +1,10 @@
 # Lua CJSON: LuaJIT 64비트 정수 지원
 
-`lua-cjson/2.1.0-sc.2@sc/dev`는 `supercre/lua-cjson`의
-`9a1a337a11b51c23f666cd44043fce23a34b35f7`를 고정한 정적 라이브러리다.
-이전 버전 `2.1.0-sc.1`(`b51521934424bd9a74ea3dd7a8f5a89b3b1fc7e9`)도 그대로 설치할 수 있다.
+`lua-cjson/2.1.0-sc.3@sc/dev`는 `supercre/lua-cjson`의
+`225cf5693ad6eb854c211466839d5a2db5a9f39d`를 고정한 정적 라이브러리다.
+이전 버전 `2.1.0-sc.2`(`9a1a337a11b51c23f666cd44043fce23a34b35f7`)와
+`2.1.0-sc.1`(`b51521934424bd9a74ea3dd7a8f5a89b3b1fc7e9`)도 그대로 설치할 수 있다.
+Windows(MSVC)에서는 `2.1.0-sc.3`부터 빌드된다. [Windows](#windows) 참고.
 Conan 버전은 SC 포크 버전이고 upstream의 `cjson._VERSION`은 `2.1devel`로 유지한다.
 
 LuaJIT의 공개 Lua 5.1 ABI 헤더만 빌드에 사용한다. 런타임과 Lua 헤더를 패키지에
@@ -12,7 +14,7 @@ Lua 5.2 이상과는 ABI가 다르며, 64비트 cdata 기능에는 LuaJIT FFI가
 ## 설치 및 연결
 
 ```sh
-conan sc:install --requires=lua-cjson/2.1.0-sc.2@sc/dev --build=missing \
+conan sc:install --requires=lua-cjson/2.1.0-sc.3@sc/dev --build=missing \
   -g CMakeDeps -g CMakeToolchain -of build/conan
 ```
 
@@ -56,20 +58,33 @@ assert(json.decode('{"a":null}').a == nil)
 assert(json.decode([["a\qb"]]) == "aqb")
 ```
 
+## Windows
+
+`2.1.0-sc.2`까지는 MSVC로 빌드되지 않았다. 포크의 CMake가 `snprintf`를 `_snprintf` 매크로로
+정의했고, VS2015부터의 C 런타임(UCRT)은 `<stdio.h>`에서 이를 오류(C1189)로 막는다.
+`2.1.0-sc.3`은 그 정의를 예전 C 런타임(VS2013 이하)에서만 쓴다.
+
+같은 조건에서 Windows 빌드에만 걸려 있던 `DISABLE_INVALID_NUMBERS`도 풀었다. `2.1.0-sc.3`의
+Windows 빌드는 다른 플랫폼처럼 `01`, `+1`, `0x10`, `NaN`, `Infinity`를 숫자로 디코딩한다.
+이전에는 Windows에서만 이 입력이 오류였다.
+
 ## 빌드 및 검증
 
 ```sh
-conan create recipes/lua-cjson/all --version=2.1.0-sc.2 --user=sc --channel=dev \
+conan create recipes/lua-cjson/all --version=2.1.0-sc.3 --user=sc --channel=dev \
   -s compiler.version=21.0
-conan sc:upload lua-cjson/2.1.0-sc.2@sc/dev
+conan sc:upload lua-cjson/2.1.0-sc.3@sc/dev
 ```
 
-현재 게시한 바이너리는 macOS arm64, Apple Clang 21.0의 Release/Debug이다.
+현재 게시한 바이너리는 macOS arm64, Apple Clang 21.0의 Release/Debug와
+Windows x86_64, MSVC 194(동적 런타임)의 Release/Debug이다. Windows 바이너리는 macOS에서
+clang-cl(MSVC ABI)로 크로스 빌드했다. Visual Studio 18(cl 19.51)의 CMake 빌드에서
+`tests/test.lua`, `test-int64.lua`, `test-compat.lua`가 통과하는 것은 따로 확인했다.
 macOS 최소 배포 버전의 기본값은 13.0이고, `os.version`을 지정하면 해당 값을 사용한다.
 현재 툴체인과 다른 기본 프로파일은 그대로 유지하고 설치 시 해당 설정을 명시한다.
 
 ```sh
-conan sc:install --requires=lua-cjson/2.1.0-sc.2@sc/dev \
+conan sc:install --requires=lua-cjson/2.1.0-sc.3@sc/dev \
   -s compiler.version=21.0 --build=never
 ```
 
