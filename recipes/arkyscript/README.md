@@ -1,13 +1,16 @@
 # Arky Conan 패키지
 
-SDK `0.4.0`의 소스는 `supercre/arkyscript`의 `84bbe16c076b1b0b25b1dd4b70a505f3d2254d9a`로 고정한다.
+SDK `0.5.0`의 소스는 `supercre/arkyscript`의 `f6380d619e1e037c9e597ed7b14825beb32003d7`로,
+`0.4.0`은 `84bbe16c076b1b0b25b1dd4b70a505f3d2254d9a`로 고정한다.
+`0.5.0`에는 호스트 런타임 소스가 더 들어 있고, step 밖에서 만든 `scheduler.sleep` 타이머가
+다음 step부터 세도록 고친 스케줄러가 들어 있다.
 SDK `0.2.0`은 `0f41ae7934afadecf98b05d9caca4db5fcdb8fe8`, SDK와 CLI `0.1.0`은
 `c5ce355048d3baa17f3fe38b138d9142bf8f3aed`를 유지한다. `0.3.0`은 게시하지 않은 번호다.
 각 레시피의 `conandata.yml`에서 아카이브 SHA-256도 확인하며, 로컬 체크아웃의 변경은 빌드에 포함하지 않는다.
 
 | 패키지 | 내용 | 플랫폼 |
 | --- | --- | --- |
-| `arkyscript/0.4.0@sc/dev` | C++20 `binder/*.h`, `*.inl` | 플랫폼 공통 헤더 |
+| `arkyscript/0.5.0@sc/dev` | C++20 `binder/*.h`, `*.inl`, 호스트 런타임 `runtime/` 소스 | 플랫폼 공통 헤더·소스 |
 | `arkyscript-cli/0.1.0@sc/dev` | Rust `arky`, 고정 LuaJIT, Task/I/O 모듈, 예제 | 네이티브 macOS/Linux 빌드 |
 
 SDK `0.2.0`의 공개 네임스페이스는 `arky::`다. `arky::state`, `arky::binder`,
@@ -24,23 +27,33 @@ SDK `0.4.0`은 `0.2.0` 이후의 바인더 변경을 담는다. `0.2.0`의 API�
 - Windows: `/EHsc`로 빌드한 호스트에서 변환 실패 같은 Lua 오류가 프로세스를 끝내던 문제를 고쳤다.
   MSVC로도 이름 기반 typed 등록을 컴파일할 수 있다.
 
-자세한 규칙은 패키지의 `res/binder/README.md`에 있다. 패키지에는 `binder/`만 들어 있다.
-호스트 임베딩 런타임(`runtime/arky_runtime.cpp`)은 소스 저장소에만 있고 아직 패키지에 넣지 않았다.
+자세한 규칙은 패키지의 `res/binder/README.md`에 있다.
+
+SDK `0.5.0`부터 호스트 임베딩 런타임(`arky::runtime`: async/await 스케줄러, 타이머, worker Task,
+파일·TCP I/O, 정적 import)을 소스로 넣는다. 호스트는 `include/runtime/arky_runtime.cpp` 한 파일을
+자기 LuaJIT와 함께 C++20으로 컴파일한다. 경로는 패키지의 CMake 모듈이 `ARKYSCRIPT_RUNTIME_SOURCE`로 알려 준다.
+Windows는 `ws2_32`를 함께 링크한다. 사용법은 패키지의 `res/runtime/embedding.md`에 있다.
+
+```cmake
+find_package(arkyscript 0.5.0 CONFIG REQUIRED)
+target_sources(game PRIVATE "${ARKYSCRIPT_RUNTIME_SOURCE}")
+target_link_libraries(game PRIVATE arkyscript::binder)
+```
 
 클라이언트에는 `arkyscript`를 `requires`로 추가하고 기존 엔진의 LuaJIT를 연결한다.
 모바일 앱에 호스트용 컴파일러·별도 LuaJIT가 유입되지 않도록 CLI는 별도 `tool_requires`로 설치한다.
 바인더는 LuaJIT 의존성을 직접 추가하지 않으므로 소비자가 LuaJIT 헤더·링크 설정을 제공해야 한다.
 
 ```cmake
-find_package(arkyscript 0.4.0 CONFIG REQUIRED)
+find_package(arkyscript 0.5.0 CONFIG REQUIRED)
 target_link_libraries(game PRIVATE arkyscript::binder)
 # game의 기존 LuaJIT 타깃도 연결한다. binder 타깃은 C++20을 요구한다.
 ```
 
 ```sh
-conan create recipes/arkyscript/all --version=0.4.0 --user=sc --channel=dev
+conan create recipes/arkyscript/all --version=0.5.0 --user=sc --channel=dev
 conan create recipes/arkyscript-cli/all --version=0.1.0 --user=sc --channel=dev --build-require
-conan sc:upload arkyscript/0.4.0@sc/dev
+conan sc:upload arkyscript/0.5.0@sc/dev
 conan sc:upload arkyscript-cli/0.1.0@sc/dev
 
 conan sc:install --tool-requires=arkyscript-cli/0.1.0@sc/dev -of build/arky-tools
