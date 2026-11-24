@@ -1,5 +1,5 @@
-/* 패키지의 정적 라이브러리를 소비자 실행 파일에 연결해 res/tests/compat.lua를 실행한다.
-** 두 번째 인자가 --joff면 JIT를 끄고 실행한다. */
+/* Links the package's static library into a consumer and runs res/tests/compat.lua.
+** A second argument --joff runs it with the JIT turned off. */
 #include <stdio.h>
 #include <string.h>
 

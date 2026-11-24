@@ -126,6 +126,30 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer conan create recipes/lu
 Windows 바이너리는 Visual Studio가 있는 Windows에서만 빌드한다. `msvcbuild.bat static`에
 소비자와 같은 C 런타임(`/MD`·`/MDd`)과 `/Z7`을 `_CL_` 환경 변수로 넘긴다. 맥에서 하는 Windows
 크로스 빌드(클라이언트의 `WindowsCrossConan.cmake`, `--build=never`)는 게시된 바이너리를 받아야 한다.
+클라이언트는 VS 18로 빌드하지만 Conan 설정은 msvc 194다. 게시 바이너리는 VS 18에 함께 설치된
+14.44 툴셋으로 만들어 설정과 실제 컴파일러를 맞춘다(새 링커는 이전 툴셋의 오브젝트를 링크한다).
+
+```bat
+conan create recipes/luajit/all --version=2.1.1795119671-sc.1 --user=sc --channel=dev ^
+  -s arch=x86_64 -s compiler=msvc -s compiler.version=194 -s compiler.runtime=dynamic ^
+  -s compiler.runtime_type=Release -s build_type=Release -s compiler.cppstd=20 ^
+  -c tools.microsoft.msbuild:vs_version=18 -c tools.cmake.cmaketoolchain:generator=Ninja
+```
+
+ARM64 Windows에서는 `-s:b arch=x86_64`를 더해 x64 호스트 도구로 빌드한다. 그러지 않으면 Conan이
+교차 빌드로 보고 test_package 실행과 `luajit.exe` 패키징을 건너뛴다.
+
+## 바이너리
+
+클라이언트(`yuna_toolchain.cmake`의 `install_conan`)가 실제로 요구하는 설정으로 만든다.
+설정이 하나라도 다르면 `--build=missing`으로 소스에서 빌드한다.
+
+| 플랫폼 | 설정 |
+|---|---|
+| Android | arm64·x86_64, clang 17, `os.api_level` 24(클라이언트)와 26, Release/Debug |
+| iOS | 기기·시뮬레이터 arm64, apple-clang 15, `os.version` 13.0, Release/Debug |
+| macOS | arm64, apple-clang 15(클라이언트), 15 + `os.version` 13.0(dev-publisher), 21.0, Release/Debug |
+| Windows | x86_64, msvc 194, 동적 런타임, Release/Debug |
 
 ## 검증
 
@@ -145,6 +169,6 @@ Windows 바이너리는 Visual Studio가 있는 Windows에서만 빌드한다. `
 | 플랫폼 | 구성 | 확인 |
 |---|---|---|
 | macOS arm64 | Apple Clang 21, Release/Debug | `conan create`, test_package 실행(JIT 켬/끔) 통과 |
-| Windows x64 | MSVC 19.51(VS 18), `/MD`·`/MDd` | 레시피와 같은 명령으로 빌드한 뒤 `compat.lua` 실행(JIT 켬/끔) 통과. VM에 Conan이 없어 `conan create`는 돌리지 않았다. |
+| Windows x64 | VS 18의 14.44 툴셋(msvc 194), `/MD`·`/MDd` | `conan create`, test_package 실행(JIT 켬/끔) 통과. 19.51 툴셋으로도 같은 결과 |
 | Android arm64·x86_64 | NDK 29, API 26, Release/Debug | `conan create`, test_package 링크까지. 실행은 하지 않았다. |
 | iOS 기기·시뮬레이터 arm64 | Xcode 27 SDK, iOS 13.0, Release/Debug | `conan create`, test_package 링크까지. 실행은 하지 않았다. |

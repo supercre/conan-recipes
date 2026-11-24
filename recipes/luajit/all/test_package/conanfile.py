@@ -1,5 +1,4 @@
 import os
-import shlex
 
 from conan import ConanFile
 from conan.tools.build import can_run
@@ -32,10 +31,11 @@ class LuaJITTest(ConanFile):
         runner = os.path.join(self.cpp.build.bindir, "test_package")
         luajit = self.dependencies["luajit"]
         script = os.path.join(luajit.package_folder, "res", "tests", "compat.lua")
-        command = f"{shlex.quote(runner)} {shlex.quote(script)}"
+        # Windows cmd도 읽도록 큰따옴표로 감싼다(shlex.quote의 작은따옴표는 cmd가 모른다).
+        command = f'"{runner}" "{script}"'
         # compat.lua는 beta3와 같은 동작(두 SC 옵션의 기본값)을 검사한다.
         if luajit.options.content_strid and luajit.options.beta3_number_format:
             self.run(command, env="conanrun")
             self.run(command + " --joff", env="conanrun")
         else:
-            self.run(shlex.quote(runner), env="conanrun")
+            self.run(f'"{runner}"', env="conanrun")
