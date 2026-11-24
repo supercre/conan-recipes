@@ -70,7 +70,7 @@ conan sc:upload zlib/1.3.1@sc/dev          # 캐시의 레시피와 빌드된 �
 | 패키지 | 버전 |
 |---|---|
 | angle | 2.1.7219 |
-| [arkyscript](recipes/arkyscript/README.md) | 0.1.0, 0.2.0, 0.4.0, 0.5.0 (C++20 헤더, 0.5.0부터 호스트 런타임 소스) |
+| [arkyscript](recipes/arkyscript/README.md) | 0.1.0, 0.2.0, 0.4.0, 0.5.0, 0.6.0 (C++20 헤더, 0.5.0부터 호스트 런타임 소스) |
 | [arkyscript-cli](recipes/arkyscript/README.md) | 0.1.0 (호스트 컴파일러·런타임) |
 | astc-encoder | 5.3.0 |
 | brotli | 1.1.0 |

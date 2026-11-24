@@ -11,3 +11,6 @@ sources:
   "0.5.0":
     url: "https://codeload.github.com/supercre/arkyscript/tar.gz/f6380d619e1e037c9e597ed7b14825beb32003d7"
     sha256: "8e0d8dacef7cc2dab901ba477732a06e43f9a40c58b37cdb6e78f230e19bcd8e"
+  "0.6.0":
+    url: "https://codeload.github.com/supercre/arkyscript/tar.gz/83656750b1bbf727bd4fe0840ae049e3a8ff1138"
+    sha256: "d62788202bae7f32b82cea4027e740de6657ba152af087710843a51ca6902b1d"
