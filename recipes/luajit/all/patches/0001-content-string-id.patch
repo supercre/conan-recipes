@@ -1,0 +1,18 @@
+--- a/src/lj_str.c
++++ b/src/lj_str.c
+@@ -282,7 +282,14 @@
+   s->gct = ~LJ_TSTR;
+   s->len = len;
+   s->hash = hash;
+-#ifndef STRID_RESEED_INTERVAL
++#if LUAJIT_SC_CONTENT_STRID
++  /* SC: derive the string ID from the content (unseeded sparse hash) instead
++  ** of the interning order. Tables place string keys by sid, so this keeps the
++  ** pairs() order of string keys independent of the VM history and equal to
++  ** LuaJIT 2.1.0-beta3, which placed them by this same hash.
++  */
++  s->sid = hash_sparse(0, str, len);
++#elif !defined(STRID_RESEED_INTERVAL)
+   s->sid = g->str.id++;
+ #elif STRID_RESEED_INTERVAL
+   if (!g->str.idreseed--) {

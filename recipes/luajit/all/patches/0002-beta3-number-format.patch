@@ -1,0 +1,38 @@
+--- a/src/lj_strfmt_num.c
++++ b/src/lj_strfmt_num.c
+@@ -169,9 +169,13 @@
+   }
+   if (k > 18) {
+     if (STRFMT_FP(sf) == STRFMT_FP(STRFMT_T_FP_F)) {
++#if LUAJIT_SC_BETA3_NUMFMT
++      stop1 = 63 - (int32_t)STRFMT_PREC(sf) / 9;
++#else
+       /* Must not limit precision here or nd_round cannot round to even.
+       ** stop1 = 63 - (int32_t)STRFMT_PREC(sf) / 9;
+       */
++#endif
+     } else {
+       int32_t floorlog2 = ndhi * 29 + lj_fls(nd[ndhi]) - k;
+       int32_t floorlog10 = (int32_t)(floorlog2 * 0.30102999566398114);
+@@ -244,6 +248,13 @@
+   return ndhi;
+ }
+ 
++#if LUAJIT_SC_BETA3_NUMFMT
++/* SC: round half up like LuaJIT 2.1.0-beta3 (before upstream 7152e154, which
++** enforces round-to-even). Keeps number formatting equal to beta3 clients and
++** servers: string.format %f/%e/%g with a precision, and tostring().
++*/
++#define nd_round(nd, ndlo, ndhi, e)	nd_add_m10e((nd), (ndhi), 5, (e))
++#else
+ /* Round to even with given precision. Extra digits are not zeroed. */
+ static uint32_t nd_round(uint32_t* nd, uint32_t ndlo, uint32_t ndhi, int32_t e)
+ {
+@@ -278,6 +289,7 @@
+ round_up:
+   return nd_add_m10e(nd, ndhi, 5, e);  /* Round up by adding 5*10^e. */
+ }
++#endif
+ 
+ /* Test whether two "nd" values are equal in their most significant digits. */
+ static int nd_similar(uint32_t* nd, uint32_t ndhi, uint32_t* ref, MSize hilen,
