@@ -103,6 +103,17 @@ Conan 환경의 `LUA_PATH`로 찾는다.
 
 ## 빌드
 
+Linux 바이너리는 macOS에서 Apple `container`로 Ubuntu 24.04를 띄워 그 안에서 빌드한다(레시피는 Linux에서 그대로 빌드된다).
+
+```sh
+container system start
+container run --rm -v <recipe-and-script>:/work ubuntu:24.04 /work/build.sh                       # arm64
+container run --rm --platform linux/amd64 --rosetta -v <...>:/work ubuntu:24.04 /work/build.sh   # x86_64
+```
+
+`build.sh`는 gcc와 Conan 2.27.1을 설치하고 `conan create`(Release/Debug)를 한 뒤 `conan cache save`로 결과를 내보낸다.
+macOS에서 `conan cache restore`로 받아 `conan sc:upload`한다.
+
 LuaJIT의 Makefile(macOS, iOS, Android, Linux)과 `msvcbuild.bat`(Windows)를 그대로 쓴다.
 `buildvm`이 대상과 같은 포인터 크기로 호스트에서 돌아야 하므로 64비트 대상(`armv8`, `x86_64`)만 받는다.
 
@@ -150,6 +161,8 @@ ARM64 Windows에서는 `-s:b arch=x86_64`를 더해 x64 호스트 도구로 빌�
 | iOS | 기기·시뮬레이터 arm64, apple-clang 15, `os.version` 13.0, Release/Debug |
 | macOS | arm64, apple-clang 15(클라이언트), 15 + `os.version` 13.0(dev-publisher), 21.0, Release/Debug |
 | Windows | x86_64, msvc 194, 동적 런타임, Release/Debug |
+| Windows arm64 | armv8, msvc 195(VS 18의 14.5 툴셋), 동적 런타임, Release/Debug. VS 18의 14.44 툴셋에는 ARM64 대상이 없다 |
+| Linux | x86_64·armv8, gcc 13(Ubuntu 24.04), Release/Debug |
 
 ## 검증
 
@@ -170,5 +183,7 @@ ARM64 Windows에서는 `-s:b arch=x86_64`를 더해 x64 호스트 도구로 빌�
 |---|---|---|
 | macOS arm64 | Apple Clang 21, Release/Debug | `conan create`, test_package 실행(JIT 켬/끔) 통과 |
 | Windows x64 | VS 18의 14.44 툴셋(msvc 194), `/MD`·`/MDd` | `conan create`, test_package 실행(JIT 켬/끔) 통과. 19.51 툴셋으로도 같은 결과 |
+| Windows arm64 | VS 18의 14.5 툴셋(msvc 195), `/MD`·`/MDd` | ARM64 Windows에서 `conan create`, test_package 실행(JIT 켬/끔) 통과 |
+| Linux x86_64·arm64 | Ubuntu 24.04, gcc 13 | macOS의 Apple `container`로 띄운 Ubuntu에서 `conan create`, test_package 실행(JIT 켬/끔) 통과. x86_64는 Rosetta로 실행 |
 | Android arm64·x86_64 | NDK 29, API 26, Release/Debug | `conan create`, test_package 링크까지. 실행은 하지 않았다. |
 | iOS 기기·시뮬레이터 arm64 | Xcode 27 SDK, iOS 13.0, Release/Debug | `conan create`, test_package 링크까지. 실행은 하지 않았다. |
